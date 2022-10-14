@@ -134,7 +134,10 @@ type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never };
  */
 type XOR<T, U> = T | U extends object ? (Without<T, U> & U) | (Without<U, T> & T) : T | U;
 
-type DeepKeys<T extends object, S extends string = "."> = {
+/**
+ * 获取对象的所有属性路径 
+ */
+type KeyPath<T extends object, S extends string = "."> = {
 	[K in keyof T]: T[K] extends object ? K | `${K}${S}${DeepKeys<T[K], S>}` : K;
 }[keyof T];
 
