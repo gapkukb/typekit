@@ -7,13 +7,7 @@ export type IsDictionary<T> = T extends Dictionary ? true : false;
 export type ArrayType<T> = T extends Array<infer U> ? U : unknown;
 export type MaybeArray<T> = T extends Array<any> ? ArrayType<T> | T : T | T[];
 export type MaybeDictionary<T> = IsDictionary<T> extends true ? T : T | Dictionary;
-export type IsTuple<T> = T extends any[]
-	? T["length"] extends number
-		? number extends T["length"]
-			? false
-			: true
-		: true
-	: false;
+export type IsTuple<T> = T extends any[] ? (T["length"] extends number ? (number extends T["length"] ? false : true) : true) : false;
 export type IsEmptyTuple<T> = T extends any[] ? (T["length"] extends 0 ? true : false) : false;
 //@ts-ignore
 export type TupleType<T> = IsTuple<T> extends 1 ? T[number] : unknown;
@@ -49,10 +43,7 @@ export type Overwrite<T extends Dictionary, U extends Dictionary> = Omit<T, keyo
 /** 获取两个类型的交集 */
 export type Difference<T extends Dictionary, U extends Dictionary> = Omit<T, keyof U> | Omit<U, keyof T>;
 /** 获取两个类型的差集 */
-export type Intersection<T extends object, U extends object> = Pick<
-	T,
-	Extract<keyof T, keyof U> & Extract<keyof U, keyof U>
->;
+export type Intersection<T extends object, U extends object> = Pick<T, Extract<keyof T, keyof U> & Extract<keyof U, keyof U>>;
 /** 获取两个类型的并集 */
 export type Union<T extends Dictionary, U extends Dictionary> = Intersection<T, U> | Difference<T, U>;
 /** 去除 readonly 修饰 */
@@ -64,10 +55,7 @@ export type ReadonlyKeys<T extends object> = {
 	[P in keyof T]-?: IfEquals<{ [Q in P]: T[P] }, { -readonly [Q in P]: T[P] }, never, P>;
 }[keyof T];
 
-export type PickByValue<T, ValueType> = Pick<
-	T,
-	{ [Key in keyof T]-?: T[Key] extends ValueType ? Key : never }[keyof T]
->;
+export type PickByValue<T, ValueType> = Pick<T, { [Key in keyof T]-?: T[Key] extends ValueType ? Key : never }[keyof T]>;
 export type OmitByValueExact<T, V> = Pick<
 	T,
 	{
@@ -75,14 +63,12 @@ export type OmitByValueExact<T, V> = Pick<
 	}[keyof T]
 >;
 
-const a: MutableKeys<{ readonly a: string }, "a"> = { a: "1" };
-
-type IfEquals<X, Y, A = X, B = never> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? A : B;
-type Boolean = 0 | 1;
-type If<B extends Boolean, Then, Else = never> = B extends 1 ? Then : Else;
-type Extends<A, B> = If<IsNever<A>, 0, A extends B ? 1 : 0>;
-type Try<A, B, Catch = B> = A extends B ? A : Catch;
-type And<A extends Boolean, B extends Boolean> = {
+export type IfEquals<X, Y, A = X, B = never> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? A : B;
+export type Boolean = 0 | 1;
+export type If<B extends Boolean, Then, Else = never> = B extends 1 ? Then : Else;
+export type Extends<A, B> = If<IsNever<A>, 0, A extends B ? 1 : 0>;
+export type Try<A, B, Catch = B> = A extends B ? A : Catch;
+export type And<A extends Boolean, B extends Boolean> = {
 	0: {
 		0: 0;
 		1: 0;
@@ -97,7 +83,7 @@ type And<A extends Boolean, B extends Boolean> = {
  * 对象的必选属性
  * eg:{a:x,b?:x,c:x}->='a'|'c'
  */
-type RequiredKeys<T extends Dictionary, KS extends keyof T = keyof T> = {
+export type RequiredKeys<T extends Dictionary, KS extends keyof T = keyof T> = {
 	[K in KS]-?: T[K] extends {} ? K : never;
 }[KS];
 
@@ -105,43 +91,42 @@ type RequiredKeys<T extends Dictionary, KS extends keyof T = keyof T> = {
  * 对象的可选属性
  * eg:{a?:x,b?:x,c:x}->='a'|'b'
  */
-type OptionalKeys<T extends Dictionary> = Exclude<keyof T, RequiredKeys<T>>;
+export type OptionalKeys<T extends Dictionary> = Exclude<keyof T, RequiredKeys<T>>;
 
 /**
  * 反转对象的可选必选属性
  * {a:x,b?:x}->{a?:x,b:x}
  */
-type Flip<T extends Dictionary, K extends RequiredKeys<T> = RequiredKeys<T>> = Partial<Pick<T, K>> &
-	Required<Omit<T, K>>;
+export type Flip<T extends Dictionary, K extends RequiredKeys<T> = RequiredKeys<T>> = Partial<Pick<T, K>> & Required<Omit<T, K>>;
 
 /**
  * 至少必填一个属性
  * - {a:x,b:x} -> {a:x,b?:x}|{a?:x,b:x}
  */
-type AtLeastOne<T, KS extends keyof T = keyof T> = { [K in KS]-?: Required<Pick<T, K>> & Partial<Omit<T, K>> }[KS];
+export type AtLeastOne<T, KS extends keyof T = keyof T> = { [K in KS]-?: Required<Pick<T, K>> & Partial<Omit<T, K>> }[KS];
 /**
  * 排除类型
  */
-type Not<T extends Primitive | object> = Exclude<Primitive | object, T>;
+export type Not<T extends Primitive | object> = Exclude<Primitive | object, T>;
 
 /**
  * 从T的key中排除包含在u中的key
  */
-type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never };
+export type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never };
 
 /**
  * T和 U两种类型二选一
  */
-type XOR<T, U> = T | U extends object ? (Without<T, U> & U) | (Without<U, T> & T) : T | U;
+export type XOR<T, U> = T | U extends object ? (Without<T, U> & U) | (Without<U, T> & T) : T | U;
 
 /**
- * 获取对象的所有属性路径 
+ * 获取对象的所有属性路径
  */
-type KeyPath<T extends object, S extends string = "."> = {
-	[K in keyof T]: T[K] extends object ? K | `${K}${S}${DeepKeys<T[K], S>}` : K;
-}[keyof T];
+// type KeyPath<T extends object, S extends string = "."> = {
+// 	[K in keyof T]: T[K] extends object ? K | `${K}${S}${DeepKeys<T[K], S>}` : K;
+// }[keyof T];
 
-type i = DeepKeys<{ a: { b: { c: number }; f: boolean } }, "/">;
+// type i = DeepKeys<{ a: { b: { c: number }; f: boolean } }, "/">;
 
 // declare function test<T>(params:) {
 
