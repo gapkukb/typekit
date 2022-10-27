@@ -131,3 +131,8 @@ export type XOR<T, U> = T | U extends object ? (Without<T, U> & U) | (Without<U,
 // declare function test<T>(params:) {
 
 // }
+
+export type Camelize<T extends string> = T extends `${infer A}${" " | "_" | "-"}${infer B}`
+	? `${Capitalize<A>}${Camelize<B>}`
+	: Capitalize<T>;
+export type Capitalize<T extends string> = T extends `${infer A}${infer B}` ? `${Uppercase<A>}${B}` : T;
